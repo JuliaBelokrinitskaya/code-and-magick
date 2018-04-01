@@ -189,12 +189,16 @@
   /**
    * Функция, определяющая скорость фаербола в зависимости от направления ветра.
    * @param {boolean} left - Направление полёта фаербола.
+   * @return {number}
    */
   var getFireballSpeed = function (left) {
     return left ? 5 : 2;
   };
 
-  /** Функция, определяющая пропорциональную высоту мага. */
+  /**
+   * Функция, определяющая пропорциональную высоту мага.
+   * @return {number}
+   */
   var getWizardHeight = function () {
     return 1.337 * wizardWidth;
   };
@@ -202,6 +206,7 @@
   /**
    * Функция, определяющая положение мага по горизонтали.
    * @param {number} width - Ширина игровой области.
+   * @return {number}
    */
   var getWizardX = function (width) {
     return (width - wizardWidth) / 2;
@@ -210,12 +215,14 @@
   /**
    * Функция, определяющая положение мага по вертикали.
    * @param {number} height - Высота игровой области.
+   * @return {number}
    */
   var getWizardY = function (height) {
     return height / 3 - getWizardHeight();
   };
 
 </script>
+<script src="js/stat.js"></script>
 <script src="js/game.js"></script>
 
 </body>
