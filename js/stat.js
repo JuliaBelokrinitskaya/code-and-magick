@@ -40,7 +40,21 @@ var CLOUD_SHIFT = 10;
  * @const
  * @type {number}
  */
-var CLOUD_DEFLECTION = 20;
+var CLOUD_DEFLECTION = 18;
+
+/**
+ * Параметры шрифта облака
+ * @const
+ * @type {string}
+ */
+var CLOUD_TEXT_STYLE = '16px PT Mono';
+
+/**
+ * Высота текстовых строк
+ * @const
+ * @type {number}
+ */
+var TEXT_HEIGHT = 20;
 
 /**
  * Максимальная высота колонки гистограммы
@@ -64,11 +78,60 @@ var BAR_WIDTH = 40;
 var BAR_MARGIN = 50;
 
 /**
- * Высота текстовых строк
+ * Минимальная насыщенность цвета синей колонки
  * @const
  * @type {number}
  */
-var TEXT_HEIGHT = 20;
+var MIN_SATURATION = 25;
+
+/**
+ * Максимальная насыщенность цвета синей колонки
+ * @const
+ * @type {number}
+ */
+var MAX_SATURATION = 100;
+
+/**
+ * Минимальная светлота цвета синей колонки
+ * @const
+ * @type {number}
+ */
+var MIN_LIGHTNESS = 30;
+
+/**
+ * Максимальная светлота цвета синей колонки
+ * @const
+ * @type {number}
+ */
+var MAX_LIGHTNESS = 70;
+
+/**
+ * Цвет облака
+ * @const
+ * @type {string}
+ */
+var CLOUD_COLOR = 'rgba(255, 255, 255, 1)';
+
+/**
+ * Цвет тени облака
+ * @const
+ * @type {string}
+ */
+var CLOUD_SHADOW_COLOR = 'rgba(0, 0, 0, 0.7)';
+
+/**
+ * Цвет текста облака
+ * @const
+ * @type {string}
+ */
+var TEXT_COLOR = 'rgba(0, 0, 0, 1)';
+
+/**
+ * Цвет колонки пользователя 'Вы'
+ * @const
+ * @type {string}
+ */
+var USER_BAR_COLOR = 'rgba(255, 0, 0, 1)';
 
 /**
  * Функция, отрисовывающая облако.
@@ -141,6 +204,54 @@ var findMaxItem = function (items) {
 };
 
 /**
+ * Функция, выбирающая случайное число из заданного промежутка.
+ * @param {number} minValue - минимальное число
+ * @param {number} maxValue - максимальное число
+ * @return {number} - случайное число из заданного промежутка,
+ * включая minValue и maxValue
+ */
+var getRandomNumber = function (minValue, maxValue) {
+  return Math.floor(Math.random() * (maxValue - minValue + 1)) + minValue;
+};
+
+/**
+ * Функция, генерирующая синий цвет случайной насыщенности.
+ * @return {string} - цвет в формате hsla
+ */
+var getRandomBlueColor = function () {
+  var saturation = getRandomNumber(MIN_SATURATION, MAX_SATURATION);
+  var lightness = getRandomNumber(MIN_LIGHTNESS, MAX_LIGHTNESS);
+
+  return 'hsla(240, ' + saturation + '%, ' + lightness + '%, 1)';
+};
+
+/**
+ * Функция, отрисовывающая гистограмму.
+ * @param {Object} ctx - контекст отрисовки
+ * @param {number} startX - x-координата левого верхнего угла гистограммы
+ * @param {number} startY - y-координата левого верхнего угла гистограммы
+ * @param {Array.<string>} labels - массив с подписями
+ * @param {Array.<number>} values - массив со значениями
+ */
+var renderBarChart = function (ctx, startX, startY, labels, values) {
+  var maxValue = findMaxItem(values);
+
+  for (var i = 0; i < values.length; i++) {
+    var barHeight = Math.round(BAR_MAX_HEIGHT * values[i] / maxValue);
+    var barX = startX + (BAR_WIDTH + BAR_MARGIN) * i;
+    var barY = startY + TEXT_HEIGHT + (BAR_MAX_HEIGHT - barHeight);
+
+    ctx.fillStyle = TEXT_COLOR;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(Math.round(values[i]), barX, barY - TEXT_HEIGHT / 2);
+    ctx.fillText(labels[i], barX, barY + barHeight + TEXT_HEIGHT / 2);
+
+    ctx.fillStyle = labels[i] === 'Вы' ? USER_BAR_COLOR : getRandomBlueColor();
+    ctx.fillRect(barX, barY, BAR_WIDTH, barHeight);
+  }
+};
+
+/**
  * Отрисовка статистики.
  * @param {Object} ctx - контекст отрисовки
  * @param {Array.<string>} names - массив с именами игроков
@@ -148,43 +259,23 @@ var findMaxItem = function (items) {
  */
 window.renderStatistics = function (ctx, names, times) {
   // Внутренние отступы
-  var cloudPaddingX = (CLOUD_WIDTH - CLOUD_DEFLECTION * 2 - (BAR_WIDTH + BAR_MARGIN) * names.length) / 2;
+  var cloudPaddingX = (CLOUD_WIDTH - (BAR_WIDTH + BAR_MARGIN) * names.length + BAR_MARGIN) / 2 - CLOUD_DEFLECTION;
   var cloudPaddingY = (CLOUD_HEIGHT - CLOUD_DEFLECTION * 2 - TEXT_HEIGHT * 4 - BAR_MAX_HEIGHT) / 2;
 
   // Координаты содержимого
   var contentX = CLOUD_X + CLOUD_DEFLECTION + cloudPaddingX;
   var contentY = CLOUD_Y + CLOUD_DEFLECTION + cloudPaddingY;
 
-  var maxTime = findMaxItem(times);
+  renderCloud(ctx, CLOUD_X + CLOUD_SHIFT, CLOUD_Y + CLOUD_SHIFT, CLOUD_WIDTH, CLOUD_HEIGHT, CLOUD_SHADOW_COLOR);
+  renderCloud(ctx, CLOUD_X, CLOUD_Y, CLOUD_WIDTH, CLOUD_HEIGHT, CLOUD_COLOR);
 
-  renderCloud(ctx, CLOUD_X + CLOUD_SHIFT, CLOUD_Y + CLOUD_SHIFT, CLOUD_WIDTH, CLOUD_HEIGHT, 'rgba(0, 0, 0, 0.7)');
-  renderCloud(ctx, CLOUD_X, CLOUD_Y, CLOUD_WIDTH, CLOUD_HEIGHT, 'rgba(255, 255, 255, 1)');
-
-  ctx.font = '16px PT Mono';
+  ctx.font = CLOUD_TEXT_STYLE;
   ctx.textBaseline = 'hanging';
-  ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+  ctx.fillStyle = TEXT_COLOR;
   ctx.fillText('Ура вы победили!', contentX, contentY);
   contentY += TEXT_HEIGHT;
   ctx.fillText('Список результатов:', contentX, contentY);
   contentY += TEXT_HEIGHT;
 
-  for (var i = 0; i < names.length; i++) {
-    var barHeight = Math.round(150 * times[i] / maxTime);
-    var barX = contentX + (BAR_WIDTH + BAR_MARGIN) * i;
-    var barY = contentY + TEXT_HEIGHT + (150 - barHeight);
-
-    ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(Math.round(times[i]), barX, barY - TEXT_HEIGHT / 2);
-    ctx.fillText(names[i], barX, barY + barHeight + TEXT_HEIGHT / 2);
-
-    if (names[i] === 'Вы') {
-      ctx.fillStyle = 'rgba(255, 0, 0, 1)';
-    } else {
-      var saturation = Math.floor(25 + Math.random() * 75);
-      var lightness = Math.floor(30 + Math.random() * 40);
-      ctx.fillStyle = 'hsla(240, ' + saturation + '%, ' + lightness + '%, 1)';
-    }
-    ctx.fillRect(barX, barY, BAR_WIDTH, barHeight);
-  }
+  renderBarChart(ctx, contentX, contentY, names, times);
 };
