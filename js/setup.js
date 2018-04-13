@@ -40,12 +40,11 @@ var EYES_COLORS = [
 ];
 
 /**
- * Функция, показывающая скрытый элемент.
- * @param {Object} element - DOM-элемент с классом 'hidden'
+ * Количество похожих персонажей
+ * @const
+ * @type {number}
  */
-var showElement = function (element) {
-  element.classList.remove('hidden');
-};
+var SIMILAR_WIZARDS_COUNT = 4;
 
 /**
  * Функция, выбирающая случайный элемент в массиве.
@@ -58,10 +57,9 @@ var getRandomItem = function (items) {
 
 /**
  * Функция, генерирующая похожего персонажа случайным образом.
- * @callback generateItemCallback
  * @return {Object} - JS объект, описывающий персонажа
  */
-var generateWizard = function () {
+var generateRandomWizard = function () {
   var firstName = getRandomItem(FIRST_NAMES);
   var lastName = getRandomItem(LAST_NAMES);
   var fullName = getRandomItem([0, 1]) ? firstName + ' ' + lastName : lastName + ' ' + firstName;
@@ -74,15 +72,14 @@ var generateWizard = function () {
 };
 
 /**
- * Функция, создающая массив объектов.
- * @param {generateItemCallback} generateItem - функция, генерирующая объект
+ * Функция, создающая массив персонажей.
  * @param {number} length - длина массива
  * @return {Array.<Object>}
  */
-var generateDataList = function (generateItem, length) {
+var getWizardsList = function (length) {
   var dataList = [];
   for (var i = 0; i < length; i++) {
-    dataList[i] = generateItem();
+    dataList[i] = generateRandomWizard();
   }
 
   return dataList;
@@ -120,13 +117,20 @@ var renderElements = function (dataList, parentElement, template, renderItem) {
   parentElement.appendChild(fragment);
 };
 
-var setupWindow = document.querySelector('.setup');
-showElement(setupWindow);
+/**
+ * Функция, показывающая окно настройки персонажа.
+ */
+var showSetupWindow = function () {
+  var setupWindow = document.querySelector('.setup');
+  setupWindow.classList.remove('hidden');
 
-var similarWizardsList = setupWindow.querySelector('.setup-similar-list');
-var similarWizardTemplate = document.querySelector('#similar-wizard-template').content.querySelector('.setup-similar-item');
+  var similarWizardsList = setupWindow.querySelector('.setup-similar-list');
+  var similarWizardTemplate = document.querySelector('#similar-wizard-template').content.querySelector('.setup-similar-item');
 
-var wizards = generateDataList(generateWizard, 4);
-renderElements(wizards, similarWizardsList, similarWizardTemplate, renderWizard);
+  var wizards = getWizardsList(SIMILAR_WIZARDS_COUNT);
+  renderElements(wizards, similarWizardsList, similarWizardTemplate, renderWizard);
 
-showElement(document.querySelector('.setup-similar'));
+  document.querySelector('.setup-similar').classList.remove('hidden');
+};
+
+showSetupWindow();
