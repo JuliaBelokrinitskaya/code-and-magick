@@ -191,7 +191,7 @@ var closeSetupWindow = function () {
  * @return {number} - индекс следующего элемента (по кругу)
  */
 var getNextIndex = function (items, currentIndex) {
-  return (currentIndex + 1) % items.length;
+  return ++currentIndex % items.length;
 };
 
 /**
