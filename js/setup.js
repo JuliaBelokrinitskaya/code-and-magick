@@ -216,16 +216,25 @@ var changeFireballColor = function () {
   fireballColorField.value = fireballColorValue;
 };
 
+/**
+ * Обработчик клика по аватарке
+ */
 var openSetupClickHandler = function () {
   openSetupWindow();
 };
 
+/**
+ * Обработчик нажатия клавиши ENTER на аватарке
+ */
 var openSetupEnterPressHandler = function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
     openSetupWindow();
   }
 };
 
+/**
+ * Обработчик нажатия клавиши ESC при открытом окне настроек.
+ */
 var setupWindowEscPressHandler = function (evt) {
   if (evt.keyCode === ESC_KEYCODE && evt.target !== setupUserName) {
     closeSetupWindow();
@@ -236,23 +245,26 @@ similarWizards = getWizardsList(SIMILAR_WIZARDS_COUNT);
 renderElements(similarWizards, similarWizardsList, similarWizardTemplate, renderWizard);
 setupSimilar.classList.remove('hidden');
 
+// Открытие окна настроек
 setupOpen.addEventListener('click', openSetupClickHandler);
 setupOpenIcon.addEventListener('keydown', openSetupEnterPressHandler);
 
+// Закрытие окна настроек
 setupClose.addEventListener('click', function () {
   closeSetupWindow();
 });
-
 setupClose.addEventListener('keydown', function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
     closeSetupWindow();
   }
 });
 
+// Выбор цвета глаз
 setupWizardEyes.addEventListener('click', function () {
   changeEyesColor();
 });
 
+// Выбор цвета фаербола
 setupFireball.addEventListener('click', function () {
   changeFireballColor();
 });
