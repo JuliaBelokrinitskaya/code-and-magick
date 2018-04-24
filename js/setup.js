@@ -177,6 +177,7 @@ var openSetupWindow = function () {
  */
 var closeSetupWindow = function () {
   setupWindow.classList.add('hidden');
+  window.resetDialogPosition();
 
   setupOpen.addEventListener('click', openSetupClickHandler);
   setupOpenIcon.addEventListener('keydown', openSetupEnterPressHandler);
