@@ -224,6 +224,7 @@ var changeFireballColor = function () {
 /**
  * Функция, определяющая, является ли элемент изображением.
  * @param {Object} target - DOM-элемент
+ * @return {boolean}
  */
 var isImageElement = function (target) {
   return target.tagName.toLowerCase() === 'img';
@@ -232,6 +233,7 @@ var isImageElement = function (target) {
 /**
  * Функция, определяющая, является ли перетаскивание элемента в данное место допустимым.
  * @param {Object} target - DOM-элемент - место, куда перетаскивается элемент
+ * @return {boolean}
  */
 var isValidDragAndDrop = function (target) {
   return draggedItem && !isImageElement(target) && !target.children.length;
