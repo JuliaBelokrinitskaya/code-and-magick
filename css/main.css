@@ -666,12 +666,10 @@ input[type=radio]:checked + .review-mark-label
     position: absolute;
     z-index: 3;
     top: 80px;
-    left: 50%;
+    left: calc(50% - 400px);
 
     box-sizing: border-box;
     width: 800px;
-
-    transform: translateX(-50%);
 
     color: #000;
     background: #89a1fd;
