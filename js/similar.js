@@ -12,7 +12,6 @@
   var setupSimilar = setupWindow.querySelector('.setup-similar');
   var similarWizardTemplate = document.querySelector('#similar-wizard-template').content.querySelector('.setup-similar-item');
   var similarWizardsList = setupWindow.querySelector('.setup-similar-list');
-  var similarWizards = [];
 
   /**
    * Функция, создающая DOM-элемент, соответствующй похожему персонажу.
@@ -25,14 +24,23 @@
     var wizardElement = wizardTemplate.cloneNode(true);
 
     wizardElement.querySelector('.setup-similar-label').textContent = wizard.name;
-    wizardElement.querySelector('.wizard-coat').style.fill = wizard.coatColor;
-    wizardElement.querySelector('.wizard-eyes').style.fill = wizard.eyesColor;
+    wizardElement.querySelector('.wizard-coat').style.fill = wizard.colorCoat;
+    wizardElement.querySelector('.wizard-eyes').style.fill = wizard.colorEyes;
 
     return wizardElement;
   };
 
+  /**
+   * Обработчик успешной загрузки данных о похожих персонажах. Отрисовывает похожих персонажей.
+   * @callback onLoadCallback
+   * @param {Array.<Object>} wizards - массив с данными о похожих персонажах
+   */
+  var loadHandler = function (wizards) {
+    var similarWizards = wizards.slice(0, SIMILAR_WIZARDS_COUNT);
+    window.util.renderElements(similarWizards, similarWizardsList, similarWizardTemplate, renderWizard);
+  };
+
   // Отрисовка похожих персонажей
-  similarWizards = window.wizard.getSimilarObjects(SIMILAR_WIZARDS_COUNT);
-  window.util.renderElements(similarWizards, similarWizardsList, similarWizardTemplate, renderWizard);
+  window.backend.load(loadHandler, window.util.showError);
   setupSimilar.classList.remove('hidden');
 })();

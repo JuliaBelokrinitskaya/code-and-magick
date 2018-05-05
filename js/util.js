@@ -52,15 +52,6 @@
     },
 
     /**
-     * Метод, выбирающий случайный элемент в массиве.
-     * @param {Array.<*>} items - массив элементов
-     * @return {*} - случайный элемент массива
-     */
-    getRandomItem: function (items) {
-      return items[Math.floor(Math.random() * items.length)];
-    },
-
-    /**
      * Метод, отрисовывающий массив DOM-элементов.
      * @param {Array.<Object>} dataList - массив объектов, содержащий данные элементов
      * @param {Object} parentElement - родительский DOM-элемент, в котором будут отрисованы элементы
@@ -73,6 +64,27 @@
         fragment.appendChild(renderItem(dataList[i], template));
       }
       parentElement.appendChild(fragment);
+    },
+
+    /**
+     * Метод, отрисовывающий сообщение об ошибке.
+     * @callback onErrorCallback
+     * @param {string} errorMessage - сообщение об ошибке
+     */
+    showError: function (errorMessage) {
+      var node = document.createElement('div');
+      node.style.position = 'absolute';
+      node.style.left = 0;
+      node.style.top = 0;
+      node.style.zIndex = 100;
+      node.style.boxSizing = 'border-box';
+      node.style.width = '100%';
+      node.style.padding = '10px 30px';
+      node.style.backgroundColor = 'red';
+      node.style.fontSize = '30px';
+      node.classList.add('error');
+      node.textContent = errorMessage;
+      document.body.insertAdjacentElement('afterbegin', node);
     }
   };
 })();

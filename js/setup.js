@@ -1,11 +1,11 @@
 'use strict';
 
 (function () {
-  var setupWindow = window.dialog.getElement();
-  var setupWizard = setupWindow.querySelector('.setup-wizard');
+  var setupForm = window.dialog.getElement().querySelector('.setup-wizard-form');
+  var setupWizard = setupForm.querySelector('.setup-wizard');
   var setupWizardEyes = setupWizard.querySelector('.wizard-eyes');
-  var eyesColorField = setupWindow.querySelector('[name=eyes-color]');
-  var setupFireball = setupWindow.querySelector('.setup-fireball-wrap');
+  var eyesColorField = setupForm.querySelector('[name=eyes-color]');
+  var setupFireball = setupForm.querySelector('.setup-fireball-wrap');
   var fireballColorField = setupFireball.querySelector('[name=fireball-color]');
 
   var eyesColors = window.wizard.getEyesColors();
@@ -47,6 +47,10 @@
     fireballColorField.value = fireballColorValue;
   };
 
+  var loadHandler = function () {
+    window.dialog.close();
+  };
+
   // Выбор цвета глаз
   setupWizardEyes.addEventListener('click', function () {
     changeEyesColor();
@@ -55,5 +59,15 @@
   // Выбор цвета фаербола
   setupFireball.addEventListener('click', function () {
     changeFireballColor();
+  });
+
+  // Отправка данных на сервер
+  setupForm.addEventListener('submit', function (evt) {
+    var errorElement = document.querySelector('.error');
+    if (errorElement) {
+      errorElement.remove();
+    }
+    window.backend.save(new FormData(setupForm), loadHandler, window.util.showError);
+    evt.preventDefault();
   });
 })();

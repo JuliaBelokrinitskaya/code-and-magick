@@ -175,6 +175,8 @@
      */
     getElement: function () {
       return setupWindow;
-    }
+    },
+
+    close: closeSetupWindow
   };
 })();
