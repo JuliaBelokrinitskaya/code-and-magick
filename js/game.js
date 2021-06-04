@@ -1,129 +1,135 @@
-'use strict';
-
-window.GameConstants = {
-  Fireball: {
-    size: window.fireballSize || 24,
-    speed: window.getFireballSpeed || function (movingLeft) {
-      return movingLeft ? 2 : 5;
-    }
-  },
-  Wizard: {
-    speed: window.wizardSpeed || 2,
-    width: window.wizardWidth || 61,
-    getHeight: window.getWizardHeight || function (width) {
-      return 1.377 * width;
+export default function startGame (
+  fireballSize,
+  getFireballSpeed,
+  wizardWidth,
+  wizardSpeed,
+  getWizardHeight,
+  getWizardX,
+  getWizardY,
+) {
+  const GameConstants = {
+    Fireball: {
+      size: fireballSize || 24,
+      speed: getFireballSpeed || function (movingLeft) {
+        return movingLeft ? 2 : 5;
+      },
     },
-    getX: window.getWizardX || function (width) {
-      return width / 3;
+    Wizard: {
+      speed: wizardSpeed || 2,
+      width: wizardWidth || 61,
+      getHeight: getWizardHeight || function (width) {
+        return 1.377 * width;
+      },
+      getX: getWizardX || function (width) {
+        return width / 3;
+      },
+      getY: getWizardY || function (height) {
+        return height - 100;
+      },
     },
-    getY: window.getWizardY || function (height) {
-      return height - 100;
-    }
-  }
-};
+  };
 
-window.Game = (function () {
   /**
    * @const
    * @type {number}
    */
-  var HEIGHT = 300;
+  const HEIGHT = 300;
 
   /**
    * @const
    * @type {number}
    */
-  var WIDTH = 700;
+  const WIDTH = 700;
 
   /**
    * ID уровней.
    * @enum {number}
    */
-  var Level = {
+  const Level = {
     INTRO: 0,
     MOVE_LEFT: 1,
     MOVE_RIGHT: 2,
     LEVITATE: 3,
-    HIT_THE_MARK: 4
+    HIT_THE_MARK: 4,
   };
 
-  var NAMES = ['Кекс', 'Катя', 'Игорь'];
+  const NAMES = ['Кекс', 'Катя', 'Игорь'];
 
   /**
    * Порядок прохождения уровней.
    * @type {Array.<Level>}
    */
-  var LevelSequence = [
-    Level.INTRO
+  const LevelSequence = [
+    Level.INTRO,
   ];
 
   /**
    * Начальный уровень.
    * @type {Level}
    */
-  var INITIAL_LEVEL = LevelSequence[0];
+  const INITIAL_LEVEL = LevelSequence[0];
 
   /**
    * Допустимые виды объектов на карте.
    * @enum {number}
    */
-  var ObjectType = {
+  const ObjectType = {
     ME: 0,
-    FIREBALL: 1
+    FIREBALL: 1,
   };
 
   /**
    * Допустимые состояния объектов.
    * @enum {number}
    */
-  var ObjectState = {
+  const ObjectState = {
     OK: 0,
-    DISPOSED: 1
+    DISPOSED: 1,
   };
 
   /**
    * Коды направлений.
    * @enum {number}
    */
-  var Direction = {
+  const Direction = {
     NULL: 0,
     LEFT: 1,
     RIGHT: 2,
     UP: 4,
-    DOWN: 8
+    DOWN: 8,
   };
 
   /**
    * Карта спрайтов игры.
    * @type {Object.<ObjectType, Object>}
    */
-  var SpriteMap = {};
-  var REVERSED = '-reversed';
+  const SpriteMap = {};
+  const REVERSED = '-reversed';
 
   SpriteMap[ObjectType.ME] = {
     width: 61,
     height: 84,
-    url: 'img/wizard.gif'
+    url: 'img/wizard.gif',
   };
 
   // TODO: Find a clever way
   SpriteMap[ObjectType.ME + REVERSED] = {
     width: 61,
     height: 84,
-    url: 'img/wizard-reversed.gif'
+    url: 'img/wizard-reversed.gif',
   };
 
   SpriteMap[ObjectType.FIREBALL] = {
     width: 24,
     height: 24,
-    url: 'img/fireball.gif'
+    url: 'img/fireball.gif',
   };
 
   /**
    * Правила перерисовки объектов в зависимости от состояния игры.
    * @type {Object.<ObjectType, function(Object, Object, number): Object>}
    */
-  var ObjectsBehaviour = {};
+  const ObjectsBehaviour = {};
 
   /**
    * Обновление движения мага. Движение мага зависит от нажатых в данный момент
@@ -215,12 +221,12 @@ window.Game = (function () {
    * нужно прервать.
    * @enum {number}
    */
-  var Verdict = {
+  const Verdict = {
     CONTINUE: 0,
     WIN: 1,
     FAIL: 2,
     PAUSE: 3,
-    INTRO: 4
+    INTRO: 4,
   };
 
   /**
@@ -229,7 +235,7 @@ window.Game = (function () {
    * можно завершать или false если нет.
    * @type {Object.<Level, function(Object):boolean>}
    */
-  var LevelsRules = {};
+  const LevelsRules = {};
 
   /**
    * Уровень считается пройденным, если был выпущен файлболл и он улетел
@@ -238,11 +244,11 @@ window.Game = (function () {
    * @return {Verdict}
    */
   LevelsRules[Level.INTRO] = function (state) {
-    var deletedFireballs = state.garbage.filter(function (object) {
+    const deletedFireballs = state.garbage.filter(function (object) {
       return object.type === ObjectType.FIREBALL;
     });
 
-    var fenceHit = deletedFireballs.filter(function (fireball) {
+    const fenceHit = deletedFireballs.filter(function (fireball) {
       // Did we hit the fence?
       return fireball.x < 10 && fireball.y > 240;
     })[0];
@@ -254,7 +260,7 @@ window.Game = (function () {
    * Начальные условия для уровней.
    * @enum {Object.<Level, function>}
    */
-  var LevelsInitialize = {};
+  const LevelsInitialize = {};
 
   /**
    * Первый уровень.
@@ -263,20 +269,20 @@ window.Game = (function () {
    */
   LevelsInitialize[Level.INTRO] = function (state) {
     state.objects.push(
-        // Установка персонажа в начальное положение. Он стоит в крайнем левом
-        // углу экрана, глядя вправо. Скорость перемещения персонажа на этом
-        // уровне равна 2px за кадр.
-        {
-          direction: Direction.RIGHT,
-          height: window.GameConstants.Wizard.getHeight(window.GameConstants.Wizard.width),
-          speed: window.GameConstants.Wizard.speed,
-          sprite: SpriteMap[ObjectType.ME],
-          state: ObjectState.OK,
-          type: ObjectType.ME,
-          width: window.GameConstants.Wizard.width,
-          x: window.GameConstants.Wizard.getX(WIDTH),
-          y: window.GameConstants.Wizard.getY(HEIGHT)
-        }
+      // Установка персонажа в начальное положение. Он стоит в крайнем левом
+      // углу экрана, глядя вправо. Скорость перемещения персонажа на этом
+      // уровне равна 2px за кадр.
+      {
+        direction: Direction.RIGHT,
+        height: GameConstants.Wizard.getHeight(GameConstants.Wizard.width),
+        speed: GameConstants.Wizard.speed,
+        sprite: SpriteMap[ObjectType.ME],
+        state: ObjectState.OK,
+        type: ObjectType.ME,
+        width: GameConstants.Wizard.width,
+        x: GameConstants.Wizard.getX(WIDTH),
+        y: GameConstants.Wizard.getY(HEIGHT),
+      },
     );
 
     return state;
@@ -288,7 +294,7 @@ window.Game = (function () {
    * @param {Element} container
    * @constructor
    */
-  var Game = function (container) {
+  const Game = function (container) {
     this.container = container;
     this.canvas = document.createElement('canvas');
     this.canvas.width = container.clientWidth;
@@ -348,7 +354,7 @@ window.Game = (function () {
           LEFT: false,
           RIGHT: false,
           SPACE: false,
-          UP: false
+          UP: false,
         },
 
         // Время начала прохождения уровня.
@@ -358,7 +364,7 @@ window.Game = (function () {
         objects: [],
 
         // Время начала прохождения игры.
-        startTime: null
+        startTime: null,
       };
     },
 
@@ -370,9 +376,6 @@ window.Game = (function () {
       restart = typeof restart === 'undefined' ? true : restart;
 
       if (restart || !this.state) {
-        // сбросить кэш при перезагрузке уровня
-        this._imagesArePreloaded = void 0;
-
         // При перезапуске уровня, происходит полная перезапись состояния
         // игры из изначального состояния.
         this.state = this.getInitialState();
@@ -428,7 +431,7 @@ window.Game = (function () {
     _pauseListener: function (evt) {
       if (evt.keyCode === 32 && !this._deactivated) {
         evt.preventDefault();
-        var needToRestartTheGame = this.state.currentStatus === Verdict.WIN ||
+        const needToRestartTheGame = this.state.currentStatus === Verdict.WIN ||
           this.state.currentStatus === Verdict.FAIL;
         this.initializeLevelAndStart(needToRestartTheGame);
 
@@ -440,12 +443,12 @@ window.Game = (function () {
      * Отрисовка экрана паузы.
      */
     _drawPauseScreen: function () {
-      var message;
+      let message;
       switch (this.state.currentStatus) {
         case Verdict.WIN:
           if (window.renderStatistics) {
-            var statistics = this._generateStatistics(new Date() - this.state.startTime);
-            var keys = this._shuffleArray(Object.keys(statistics));
+            const statistics = this._generateStatistics(new Date() - this.state.startTime);
+            const keys = this._schuffleArray(Object.keys(statistics));
             window.renderStatistics(this.ctx, keys, keys.map(function (it) {
               return statistics[it];
             }));
@@ -468,16 +471,16 @@ window.Game = (function () {
     },
 
     _generateStatistics: function (time) {
-      var generationIntervalSec = 3000;
-      var minTimeInSec = 1000;
+      const generationIntervalSec = 3000;
+      const minTimeInSec = 1000;
 
-      var statistic = {
-        'Вы': time
+      const statistic = {
+        'Вы': time,
       };
 
-      for (var i = 0; i < NAMES.length; i++) {
-        var diffTime = Math.random() * generationIntervalSec;
-        var userTime = time + (diffTime - generationIntervalSec / 2);
+      for (let i = 0; i < NAMES.length; i++) {
+        const diffTime = Math.random() * generationIntervalSec;
+        let userTime = time + (diffTime - generationIntervalSec / 2);
         if (userTime < minTimeInSec) {
           userTime = minTimeInSec;
         }
@@ -487,10 +490,10 @@ window.Game = (function () {
       return statistic;
     },
 
-    _shuffleArray: function (array) {
-      for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = array[i];
+    _schuffleArray: function (array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = array[i];
         array[i] = array[j];
         array[j] = temp;
       }
@@ -498,10 +501,10 @@ window.Game = (function () {
     },
 
     _drawMessage: function (message) {
-      var ctx = this.ctx;
+      const ctx = this.ctx;
 
-      var drawCloud = function (x, y, width, heigth) {
-        var offset = 10;
+      const drawCloud = function (x, y, width, heigth) {
+        const offset = 10;
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x + offset, y + heigth / 2);
@@ -545,13 +548,13 @@ window.Game = (function () {
         return;
       }
 
-      var keys = Object.keys(SpriteMap);
-      var imagesToGo = keys.length;
+      const keys = Object.keys(SpriteMap);
+      let imagesToGo = keys.length;
 
-      var self = this;
+      const self = this;
 
-      var loadSprite = function (sprite) {
-        var image = new Image(sprite.width, sprite.height);
+      const loadSprite = function (sprite) {
+        const image = new Image(sprite.width, sprite.height);
         image.onload = function () {
           sprite.image = image;
           if (--imagesToGo === 0) {
@@ -562,7 +565,7 @@ window.Game = (function () {
         image.src = sprite.url;
       };
 
-      for (var i = 0; i < keys.length; i++) {
+      for (let i = 0; i < keys.length; i++) {
         loadSprite(SpriteMap[keys[i]]);
       }
     },
@@ -575,7 +578,7 @@ window.Game = (function () {
      */
     updateObjects: function (delta) {
       // Персонаж.
-      var me = this.state.objects.filter(function (object) {
+      const me = this.state.objects.filter(function (object) {
         return object.type === ObjectType.ME;
       })[0];
 
@@ -583,13 +586,13 @@ window.Game = (function () {
       if (this.state.keysPressed.SHIFT) {
         this.state.objects.push({
           direction: me.direction,
-          height: window.GameConstants.Fireball.size,
-          speed: window.GameConstants.Fireball.speed(!!(me.direction & Direction.LEFT)),
+          height: GameConstants.Fireball.size,
+          speed: GameConstants.Fireball.speed(me.direction & Direction.LEFT),
           sprite: SpriteMap[ObjectType.FIREBALL],
           type: ObjectType.FIREBALL,
-          width: window.GameConstants.Fireball.size,
-          x: me.direction & Direction.RIGHT ? me.x + me.width : me.x - window.GameConstants.Fireball.size,
-          y: me.y + me.height / 2
+          width: GameConstants.Fireball.size,
+          x: me.direction & Direction.RIGHT ? me.x + me.width : me.x - GameConstants.Fireball.size,
+          y: me.y + me.height / 2,
         });
 
         this.state.keysPressed.SHIFT = false;
@@ -598,7 +601,7 @@ window.Game = (function () {
       this.state.garbage = [];
 
       // Убирает в garbage не используемые на карте объекты.
-      var remainingObjects = this.state.objects.filter(function (object) {
+      const remainingObjects = this.state.objects.filter(function (object) {
         ObjectsBehaviour[object.type](object, this.state, delta);
 
         if (object.state === ObjectState.DISPOSED) {
@@ -632,7 +635,7 @@ window.Game = (function () {
            * @return {Verdict}
            */
           function (state) {
-            var me = state.objects.filter(function (object) {
+            const me = state.objects.filter(function (object) {
               return object.type === ObjectType.ME;
             })[0];
 
@@ -659,7 +662,7 @@ window.Game = (function () {
             return Date.now() - state.startTime > 3 * 60 * 1000 ?
               Verdict.FAIL :
               Verdict.CONTINUE;
-          }
+          },
         ];
       }
 
@@ -668,9 +671,9 @@ window.Game = (function () {
       // Цикл продолжается до тех пор, пока какая-либо из проверок не вернет
       // любое другое состояние кроме CONTINUE или пока не пройдут все
       // проверки. После этого состояние сохраняется.
-      var allChecks = this.commonRules.concat(LevelsRules[this.level]);
-      var currentCheck = Verdict.CONTINUE;
-      var currentRule;
+      const allChecks = this.commonRules.concat(LevelsRules[this.level]);
+      let currentCheck = Verdict.CONTINUE;
+      let currentRule;
 
       while (currentCheck === Verdict.CONTINUE && allChecks.length) {
         currentRule = allChecks.shift();
@@ -704,8 +707,8 @@ window.Game = (function () {
       // их координатам и направлению.
       this.state.objects.forEach(function (object) {
         if (object.sprite) {
-          var reversed = object.direction & Direction.LEFT;
-          var sprite = SpriteMap[object.type + (reversed ? REVERSED : '')] || SpriteMap[object.type];
+          const reversed = object.direction & Direction.LEFT;
+          const sprite = SpriteMap[object.type + (reversed ? REVERSED : '')] || SpriteMap[object.type];
           this.ctx.drawImage(sprite.image, object.x, object.y, object.width, object.height);
         }
       }, this);
@@ -722,7 +725,7 @@ window.Game = (function () {
         this.state.lastUpdated = Date.now();
       }
 
-      var delta = (Date.now() - this.state.lastUpdated) / 10;
+      const delta = (Date.now() - this.state.lastUpdated) / 10;
       this.updateObjects(delta);
       this.checkStatus();
 
@@ -804,22 +807,14 @@ window.Game = (function () {
     _removeGameListeners: function () {
       window.removeEventListener('keydown', this._onKeyDown);
       window.removeEventListener('keyup', this._onKeyUp);
-    }
+    },
   };
 
   Game.Verdict = Verdict;
 
-  var game = new Game(document.querySelector('.demo'));
-
-  window.restartGame = function (wizardRightImage, wizardLeftImage) {
-    SpriteMap[ObjectType.ME].url = wizardRightImage;
-    SpriteMap[ObjectType.ME + REVERSED].url = wizardLeftImage;
-
-    game.initializeLevelAndStart();
-    game.setGameStatus(Verdict.INTRO);
-  };
-
-  window.restartGame('img/wizard.gif', 'img/wizard-reversed.gif');
+  const game = new Game(document.querySelector('.demo'));
+  game.initializeLevelAndStart();
+  game.setGameStatus(Verdict.INTRO);
 
   return game;
-})();
+}
